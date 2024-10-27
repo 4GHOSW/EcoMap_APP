@@ -8,9 +8,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {authNaviagtions} from '../../constants/navigations';
-import CustomButton from '../../components/CustomButton';
-import {AuthStackParamList} from '../../navigation/stack/AuthStackNavigator';
+import {authNaviagtions} from '@/constants/navigations';
+import CustomButton from '@/components/CustomButton';
+import {AuthStackParamList} from '@/navigation/stack/AuthStackNavigator';
 
 type AuthHomeScreenProps = StackScreenProps<
   AuthStackParamList,

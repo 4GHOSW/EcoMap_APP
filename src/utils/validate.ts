@@ -1,12 +1,16 @@
 type UserInfomation = {
+  name?: string;
   email: string;
   password: string;
+  passwordConfirm?: string;
 };
 
 function validateUser(values: UserInfomation) {
   const errors = {
+    name: '',
     email: '',
     password: '',
+    passwordConfirm: '',
   };
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
@@ -23,7 +27,9 @@ function validateLogin(values: UserInfomation) {
   return validateUser(values);
 }
 
-function validateSignup(values: UserInfomation & {passwordConfirm: string}) {
+function validateSignup(
+  values: UserInfomation & {passwordConfirm: string; name: string},
+) {
   const errors = validateUser(values);
   const signupErrors = {...errors, passwordConfirm: ''};
 
