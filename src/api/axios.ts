@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://ecomap-api-1xa2.onrender.com',
+  baseURL: 'https://port-0-ecomap-api-m2see5gie6fd3062.sel4.cloudtype.app',
   // withCredentials: true,
 });
 

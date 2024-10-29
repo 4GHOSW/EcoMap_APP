@@ -2,9 +2,10 @@ import React, {useRef} from 'react';
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 // import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import useAuth from '@/hooks/queries/useAuth';
-import {colors} from '@/constants';
+import {colors, mapNavigations} from '@/constants';
 import {CompositeNavigationProp, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MapStackParamList} from '@/navigation/stack/MapStackNavigator';
@@ -20,54 +21,40 @@ type Navigation = CompositeNavigationProp<
 
 function MapHomeScreen() {
   const inset = useSafeAreaInsets();
-  const {logoutMutation} = useAuth();
   const navigation = useNavigation<Navigation>();
-  //   const mapRef = useRef<MapView | null>(null);
-  //   const {userLocation, isUserLocationError} = useUserLocation();
 
-  const handleLogout = () => {
-    logoutMutation.mutate(null);
+  const handlePressSearch = () => {
+    navigation.navigate(mapNavigations.SEARCH_LOCATION);
   };
-
-  //   const handlePressUserLocation = () => {
-  //     if (isUserLocationError) {
-  //       // 에러메세지를 표시하기
-  //       return;
-  //     }
-
-  //     mapRef.current?.animateToRegion({
-  //       latitude: userLocation.latitude,
-  //       longitude: userLocation.longitude,
-  //       latitudeDelta: 0.0922,
-  //       longitudeDelta: 0.0421,
-  //     });
-  //   };
 
   return (
     <>
-      {/* <MapView
-        ref={mapRef}
-        style={styles.container}
-        provider={PROVIDER_GOOGLE}
-        showsUserLocation
-        followsUserLocation
-        showsMyLocationButton={false}
-      /> */}
       <WebView
         source={{
-          //   uri: 'http://partir.cafe24.com:8000/?client_id=o36syaxz8i&client_secret=CUrr1eBBRD899k6CtHTi1bGQE7fsEjy6tRnOj1ne',
           uri: 'https://naver.com',
         }}
       />
-      <Pressable
-        style={[styles.drawerButton, {top: inset.top || 20}]}
-        onPress={() => navigation.openDrawer()}>
-        <Text>서랍</Text>
-      </Pressable>
-      <View style={styles.buttonList}>
-        {/* <Pressable style={styles.mapButton} onPress={handlePressUserLocation}>
-          <Text>내위치</Text>
-        </Pressable> */}
+
+      {/* 검색 영역 */}
+      <View style={[styles.searchContainer, {top: inset.top || 20}]}>
+        <View style={styles.searchInput}>
+          <Pressable
+            style={styles.menuButton}
+            onPress={() => navigation.openDrawer()}>
+            <Ionicons name="menu" color={colors.BLACK} size={25} />
+          </Pressable>
+          <Pressable style={styles.inputPressable} onPress={handlePressSearch}>
+            <Text style={styles.searchPlaceholder}>
+              탄소가 적은 길안내를 시작해보세요!
+            </Text>
+          </Pressable>
+        </View>
+        <Pressable style={styles.searchButton} onPress={handlePressSearch}>
+          <View style={styles.searchButtonInner}>
+            <Ionicons name="navigate" color={colors.WHITE} size={20} />
+            <Text style={styles.searchButtonText}>길찾기</Text>
+          </View>
+        </Pressable>
       </View>
     </>
   );
@@ -77,36 +64,61 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  drawerButton: {
+  searchContainer: {
     position: 'absolute',
-    left: 0,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: colors.PINK_700,
-    borderTopRightRadius: 50,
-    borderBottomRightRadius: 50,
-    shadowColor: colors.BLACK,
-    shadowOffset: {width: 1, height: 1},
-    shadowOpacity: 0.5,
-    elevation: 4,
-  },
-  buttonList: {
-    position: 'absolute',
-    bottom: 30,
+    left: 15,
     right: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  mapButton: {
-    backgroundColor: colors.PINK_700,
-    marginVertical: 5,
+  searchInput: {
+    flex: 1,
+    height: 48,
+    backgroundColor: colors.WHITE,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: colors.BLACK,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    elevation: 2,
+  },
+  menuButton: {
     height: 48,
     width: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+  },
+  inputPressable: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'center',
+  },
+  searchPlaceholder: {
+    color: colors.GRAY_500,
+    fontSize: 14,
+  },
+  searchButton: {
+    backgroundColor: colors.PRIMARY,
+    height: 48,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
     shadowColor: colors.BLACK,
-    shadowOffset: {width: 1, height: 2},
-    shadowOpacity: 0.5,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
     elevation: 2,
+  },
+  searchButtonInner: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 3,
+  },
+  searchButtonText: {
+    color: colors.WHITE,
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 
