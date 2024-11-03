@@ -1,15 +1,23 @@
-import {colors} from '@/constants';
+import {endLocationAddressState} from '@/atoms/address';
+import {colors, mapNavigations} from '@/constants';
 import {RegionInfo} from '@/hooks/useSearchLocation';
+import {Navigation} from '@/screens/map/MapHomeScreen';
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {Dimensions, Pressable, ScrollView, Text} from 'react-native';
 import {StyleSheet, View} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Octicons from 'react-native-vector-icons/Octicons';
+import {useSetRecoilState} from 'recoil';
 
 interface SearchRegionResultProps {
   regionInfo: RegionInfo[];
 }
 
 function SearchRegionResult({regionInfo}: SearchRegionResultProps) {
+  const navigation = useNavigation<Navigation>();
+  const setEndLocationAddressState = useSetRecoilState(endLocationAddressState);
+
   const handlePressRegionInfo = (
     latitude: string,
     longitude: string,
@@ -21,6 +29,8 @@ function SearchRegionResult({regionInfo}: SearchRegionResultProps) {
     };
 
     console.log(regionLocation, address); // ToDo: x, y 외에 주소를 저장하고 세진이한테 주소 보내기
+    setEndLocationAddressState(address);
+    navigation.navigate(mapNavigations.SEARCH_LOCATION);
   };
 
   return (
@@ -40,7 +50,7 @@ function SearchRegionResult({regionInfo}: SearchRegionResultProps) {
               handlePressRegionInfo(info.y, info.x, info.address_name)
             }>
             <View style={styles.placeNameContainer}>
-              <Octicons name="location" size={15} color={colors.PRIMARY} />
+              <Ionicons name="location" size={20} color={colors.PRIMARY} />
               <Text
                 style={styles.placeText}
                 ellipsizeMode="tail"

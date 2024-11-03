@@ -12,6 +12,8 @@ const authNaviagtions = {
 const mapNavigations = {
   MAP_HOME: 'MapHome',
   SEARCH_LOCATION: 'SearchLocation',
+  LOCATION_START: 'LocationStart',
+  LOCATION_END: 'LocationEnd',
 } as const;
 
 export {mainNavigations, authNaviagtions, mapNavigations};
