@@ -1,4 +1,5 @@
 import {endLocationAddressState} from '@/atoms/address';
+import {SearchHistory, searchHistoryState} from '@/atoms/searchHistory';
 import {colors, mapNavigations} from '@/constants';
 import {RegionInfo} from '@/hooks/useSearchLocation';
 import {Navigation} from '@/screens/map/MapHomeScreen';
@@ -8,7 +9,7 @@ import {Dimensions, Pressable, ScrollView, Text} from 'react-native';
 import {StyleSheet, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Octicons from 'react-native-vector-icons/Octicons';
-import {useSetRecoilState} from 'recoil';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 
 interface SearchRegionResultProps {
   regionInfo: RegionInfo[];
@@ -17,19 +18,32 @@ interface SearchRegionResultProps {
 function SearchRegionResult({regionInfo}: SearchRegionResultProps) {
   const navigation = useNavigation<Navigation>();
   const setEndLocationAddressState = useSetRecoilState(endLocationAddressState);
+  const [searchHistory, setSearchHistory] = useRecoilState(searchHistoryState);
 
-  const handlePressRegionInfo = (
-    latitude: string,
-    longitude: string,
-    address: string,
-  ) => {
+  const handlePressRegionInfo = (info: RegionInfo) => {
     const regionLocation = {
-      latitude: Number(latitude),
-      longitude: Number(longitude),
+      latitude: Number(info.y),
+      longitude: Number(info.x),
     };
 
-    console.log(regionLocation, address); // ToDo: x, y 외에 주소를 저장하고 세진이한테 주소 보내기
-    setEndLocationAddressState(address);
+    // 새로운 검색 기록 생성
+    const newHistory: SearchHistory = {
+      id: info.id,
+      name: info.place_name,
+      address: info.address_name,
+      distance: `${(Number(info.distance) / 1000).toFixed(2)}km`,
+      path: info.category_name,
+      latitude: regionLocation.latitude,
+      longitude: regionLocation.longitude,
+    };
+
+    // 중복 검색 기록 제거 및 최신 기록을 맨 앞에 추가
+    setSearchHistory(prev => {
+      const filtered = prev.filter(item => item.id !== info.id);
+      return [newHistory, ...filtered].slice(0, 5); // 최대 5개까지만 저장
+    });
+
+    setEndLocationAddressState(info.address_name);
     navigation.navigate(mapNavigations.SEARCH_LOCATION);
   };
 
@@ -46,9 +60,7 @@ function SearchRegionResult({regionInfo}: SearchRegionResultProps) {
               styles.itemBorder,
               index === regionInfo.length - 1 && styles.noItemBorder,
             ]}
-            onPress={() =>
-              handlePressRegionInfo(info.y, info.x, info.address_name)
-            }>
+            onPress={() => handlePressRegionInfo(info)}>
             <View style={styles.placeNameContainer}>
               <Ionicons name="location" size={20} color={colors.PRIMARY} />
               <Text

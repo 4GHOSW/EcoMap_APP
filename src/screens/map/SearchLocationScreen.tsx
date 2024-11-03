@@ -1,11 +1,12 @@
 import {colors, mapNavigations} from '@/constants';
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
 import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Navigation} from './MapHomeScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {currentAddressState, endLocationAddressState} from '@/atoms/address';
+import {searchHistoryState} from '@/atoms/searchHistory';
 
 // 최근 검색 기록 더미 데이터
 const recentSearches = [
@@ -34,7 +35,10 @@ const recentSearches = [
 
 function SearchLocationScreen() {
   const currentAddress = useRecoilValue(currentAddressState);
-  const endLocationAddress = useRecoilValue(endLocationAddressState);
+  const [endLocationAddress, setEndLocationAddress] = useRecoilState(
+    endLocationAddressState,
+  );
+  const searchHistory = useRecoilValue(searchHistoryState);
   const navigation = useNavigation<Navigation>();
 
   const handlePressStartLocationSearch = () => {
@@ -49,6 +53,14 @@ function SearchLocationScreen() {
   const handlePressSearch = () => {
     // navigation.navigate(mapNavigations.ROUTE_SEARCH);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setEndLocationAddress('');
+      };
+    }, [setEndLocationAddress]),
+  );
 
   return (
     <View style={styles.container}>
@@ -101,8 +113,13 @@ function SearchLocationScreen() {
       <View style={styles.recentSearchContainer}>
         <Text style={styles.recentSearchTitle}>최근 검색어</Text>
         <ScrollView>
-          {recentSearches.map(item => (
-            <Pressable key={item.id} style={styles.searchItem}>
+          {searchHistory.map(item => (
+            <Pressable
+              key={item.id}
+              style={styles.searchItem}
+              onPress={() => {
+                setEndLocationAddress(item.address);
+              }}>
               <Ionicons name="location" size={20} color={colors.PRIMARY} />
               <View style={styles.searchItemContent}>
                 <Text style={styles.searchItemTitle}>{item.name}</Text>
