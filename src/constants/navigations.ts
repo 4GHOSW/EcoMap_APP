@@ -14,6 +14,8 @@ const mapNavigations = {
   SEARCH_LOCATION: 'SearchLocation',
   LOCATION_START: 'LocationStart',
   LOCATION_END: 'LocationEnd',
+  ROUTE_RESULT: 'RouteResult',
+  MAP_RESULT: 'MapResult',
 } as const;
 
 export {mainNavigations, authNaviagtions, mapNavigations};

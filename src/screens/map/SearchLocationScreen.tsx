@@ -1,37 +1,19 @@
 import {colors, mapNavigations} from '@/constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useCallback, useState} from 'react';
-import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {Navigation} from './MapHomeScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {currentAddressState, endLocationAddressState} from '@/atoms/address';
 import {searchHistoryState} from '@/atoms/searchHistory';
-
-// 최근 검색 기록 더미 데이터
-const recentSearches = [
-  {
-    id: 1,
-    name: '스타벅스 영등포 신길점',
-    address: '서울시 영등포구 신길동 000-000',
-    distance: '2.0km',
-    path: '음식점 > 카페 > 커피전문점 > 스타벅스',
-  },
-  {
-    id: 2,
-    name: '스타벅스 영등포 신길점',
-    address: '서울시 영등포구 신길동 000-000',
-    distance: '2.0km',
-    path: '음식점 > 카페 > 커피전문점 > 스타벅스',
-  },
-  {
-    id: 3,
-    name: '스타벅스 영등포 신길점',
-    address: '서울시 영등포구 신길동 000-000',
-    distance: '2.0km',
-    path: '음식점 > 카페 > 커피전문점 > 스타벅스',
-  },
-];
 
 function SearchLocationScreen() {
   const currentAddress = useRecoilValue(currentAddressState);
@@ -51,7 +33,7 @@ function SearchLocationScreen() {
   };
 
   const handlePressSearch = () => {
-    // navigation.navigate(mapNavigations.ROUTE_SEARCH);
+    navigation.navigate(mapNavigations.ROUTE_RESULT);
   };
 
   useFocusEffect(
@@ -63,7 +45,7 @@ function SearchLocationScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={styles.searchBox}>
           <View style={styles.iconContainer}>
@@ -132,7 +114,7 @@ function SearchLocationScreen() {
           ))}
         </ScrollView>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

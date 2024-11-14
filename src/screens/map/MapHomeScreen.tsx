@@ -1,8 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Platform, Pressable, StyleSheet, Text, View} from 'react-native';
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Dimensions,
+} from 'react-native';
 // import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import useAuth from '@/hooks/queries/useAuth';
 import {
@@ -24,6 +31,7 @@ import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
 import {useSetRecoilState} from 'recoil';
 import {currentAddressState} from '@/atoms/address';
+import {Image} from 'react-native';
 
 export type Navigation = CompositeNavigationProp<
   StackNavigationProp<MapStackParamList>,
@@ -36,7 +44,6 @@ function MapHomeScreen() {
   const inset = useSafeAreaInsets();
   const navigation = useNavigation<Navigation>();
   // location state
-  // ToDo: Recoil에 현재 위치 저장 필요
   const [currentLocation, setCurrentLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -128,102 +135,238 @@ function MapHomeScreen() {
     navigation.navigate(mapNavigations.SEARCH_LOCATION);
   };
 
+  // 반원 그리기
+  const totalCarbon = 36800; // Kg
+  const progress = 0.7; // 70% progress for the semi-circle
+
+  // Semi-circle progress calculation
+  const generateSemiCircle = (progress: any) => {
+    const windowWidth = Dimensions.get('window').width;
+    const size = windowWidth - 80;
+    const center = size / 2;
+    const radius = size / 2;
+    const angleOffset = Math.PI;
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + Math.PI * progress;
+
+    const x1 = center + radius * Math.cos(startAngle);
+    const y1 = center + radius * Math.sin(startAngle);
+    const x2 = center + radius * Math.cos(endAngle);
+    const y2 = center + radius * Math.sin(endAngle);
+
+    const largeArcFlag = progress > 0.5 ? 1 : 0;
+
+    return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`;
+  };
+
   useEffect(() => {
     requestLocationPermission();
   }, []);
 
   return (
-    <>
-      <WebView
-        source={{
-          uri: 'https://www.google.co.kr/maps/place/%EB%8F%84%EC%BF%84+%EB%94%94%EC%A6%88%EB%8B%88%EC%94%A8/@35.6267151,139.882503,17z/data=!3m1!4b1!4m6!3m5!1s0x60187d03114737b3:0x41471d704ab72d25!8m2!3d35.6267108!4d139.8850779!16zL20vMDRjN3R0?hl=ko&entry=ttu&g_ep=EgoyMDI0MTAyNy4wIKXMDSoASAFQAw%3D%3D',
-        }}
-      />
+    <SafeAreaView style={styles.container}>
+      {/* Custom Navigation Icon */}
+      <View style={styles.navigationIcon}>
+        {/* Replace with your mascot image */}
+        <Image
+          resizeMode="contain"
+          style={styles.image}
+          source={require('../../assets/images/logo(final).png')}
+        />
+      </View>
 
-      {/* 검색 영역 */}
-      <View style={[styles.searchContainer, {top: inset.top || 20}]}>
-        <View style={styles.searchInput}>
-          <Pressable
-            style={styles.menuButton}
-            onPress={() => navigation.openDrawer()}>
-            <Ionicons name="menu" color={colors.BLACK} size={25} />
-          </Pressable>
-          <Pressable style={styles.inputPressable} onPress={handlePressSearch}>
-            <Text style={styles.searchPlaceholder}>
-              탄소가 적은 길안내를 시작해보세요!
-            </Text>
+      {/* Carbon Status Card */}
+      <View style={styles.cardContainer}>
+        <View style={styles.card}>
+          <View style={styles.progressContainer}>
+            {/* Background Arc */}
+            <View style={styles.progressBackground} />
+            <View style={styles.progressForeground} />
+            <View style={styles.carbonInfo}>
+              <Text style={styles.carbonLabel}>총 누적 탄소량</Text>
+              <Text style={styles.carbonValue}>
+                {totalCarbon.toLocaleString()}Kg
+              </Text>
+            </View>
+          </View>
+          <Pressable style={styles.recordButton}>
+            <Text style={styles.recordButtonText}>기록보기</Text>
           </Pressable>
         </View>
-        <Pressable style={styles.searchButton} onPress={handlePressSearch}>
-          <View style={styles.searchButtonInner}>
-            <Ionicons name="navigate" color={colors.WHITE} size={20} />
-            <Text style={styles.searchButtonText}>길찾기</Text>
-          </View>
-        </Pressable>
       </View>
-    </>
+
+      {/* Ranking Section */}
+      <View style={styles.rankingContainer}>
+        <View style={styles.rankingHeader}>
+          <View style={styles.crownIcon}>
+            <Text style={styles.crownText}>👑</Text>
+          </View>
+          <Text style={styles.rankingTitle}>누적 최고 순위</Text>
+        </View>
+        <View style={styles.rankingContent}>
+          {/* Add your ranking content here */}
+          <View style={styles.rankingPlaceholder} />
+        </View>
+      </View>
+
+      {/* Navigation Button */}
+      <Pressable style={styles.navigateButton} onPress={handlePressSearch}>
+        <Text style={styles.navigateButtonText}>길찾기 GO!</Text>
+      </Pressable>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F0F6FF',
   },
-  searchContainer: {
-    position: 'absolute',
-    left: 15,
-    right: 15,
-    flexDirection: 'row',
+  navigationIcon: {
+    width: '100%',
+    height: '10%',
     alignItems: 'center',
-    gap: 8,
+    zIndex: 1,
   },
-  searchInput: {
-    flex: 1,
-    height: 48,
-    backgroundColor: colors.WHITE,
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: colors.BLACK,
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    elevation: 2,
-  },
-  menuButton: {
-    height: 48,
-    width: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputPressable: {
-    flex: 1,
+  image: {
+    width: '100%',
     height: '100%',
-    justifyContent: 'center',
   },
-  searchPlaceholder: {
-    color: colors.GRAY_500,
-    fontSize: 14,
+  cardContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  searchButton: {
-    backgroundColor: colors.PRIMARY,
-    height: 48,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    justifyContent: 'center',
-    shadowColor: colors.BLACK,
-    shadowOffset: {width: 0, height: 2},
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  searchButtonInner: {
-    flexDirection: 'column',
+  progressContainer: {
     alignItems: 'center',
-    gap: 3,
+    height: 200,
+    justifyContent: 'flex-start',
+    paddingTop: 20,
   },
-  searchButtonText: {
-    color: colors.WHITE,
-    fontSize: 13,
-    fontWeight: '600',
+  progressWrapper: {
+    width: 200,
+    height: 100,
+    position: 'relative',
+  },
+  progressBackground: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 100,
+    borderWidth: 15,
+    borderColor: '#E8F0FE',
+    borderBottomWidth: 0,
+  },
+  progressForeground: {
+    position: 'absolute',
+    width: '100%',
+    height: '70%',
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 100,
+    borderWidth: 15,
+    borderColor: '#007AFF',
+    borderBottomWidth: 0,
+    // 프로그레스 정도에 따라 분할
+    // clipPath 속성을 사용할 수 있다면 더 정교한 제어 가능
+    // height: '70%',
+  },
+  carbonInfo: {
+    marginTop: 30,
+    alignItems: 'center',
+  },
+  carbonLabel: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+  },
+  carbonValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  recordButton: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+  },
+  recordButtonText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  rankingContainer: {
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  rankingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  crownIcon: {
+    marginRight: 8,
+  },
+  crownText: {
+    fontSize: 20,
+  },
+  rankingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  rankingContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    height: 200,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  rankingPlaceholder: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+  },
+  navigateButton: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    backgroundColor: '#007AFF',
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  navigateButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

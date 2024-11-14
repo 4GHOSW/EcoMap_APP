@@ -6,12 +6,16 @@ import {mapNavigations} from '@/constants';
 import SearchLocationScreen from '@/screens/map/SearchLocationScreen';
 import LocationStartScreen from '@/screens/map/LocationStartScreen';
 import LocationEndScreen from '@/screens/map/LocationEndScreen';
+import RouteResultScreen from '@/screens/map/RouteResultScreen';
+import MapResultScreen from '@/screens/map/MapResultScreen';
 
 export type MapStackParamList = {
   [mapNavigations.MAP_HOME]: undefined;
   [mapNavigations.SEARCH_LOCATION]: undefined;
   [mapNavigations.LOCATION_START]: undefined;
   [mapNavigations.LOCATION_END]: undefined;
+  [mapNavigations.ROUTE_RESULT]: undefined;
+  [mapNavigations.MAP_RESULT]: undefined;
 };
 
 const Stack = createStackNavigator<MapStackParamList>();
@@ -20,6 +24,7 @@ function MapStackNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
+        headerShown: false,
         cardStyle: {
           backgroundColor: 'white',
         },
@@ -36,7 +41,7 @@ function MapStackNavigator() {
         name={mapNavigations.MAP_HOME}
         component={MapHomeScreen}
         options={{
-          headerTitle: ' ',
+          headerTitle: 'HOME',
           headerShown: false,
         }}
       />
@@ -62,6 +67,22 @@ function MapStackNavigator() {
         options={{
           presentation: 'modal',
           headerTitle: '종점 검색',
+        }}
+      />
+      <Stack.Screen
+        name={mapNavigations.ROUTE_RESULT}
+        component={RouteResultScreen}
+        options={{
+          // presentation: 'modal',
+          headerTitle: '경로별 탄소',
+        }}
+      />
+      <Stack.Screen
+        name={mapNavigations.MAP_RESULT}
+        component={MapResultScreen}
+        options={{
+          // presentation: 'modal',
+          headerTitle: '맵',
         }}
       />
     </Stack.Navigator>
